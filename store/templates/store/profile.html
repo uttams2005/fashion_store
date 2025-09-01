@@ -92,10 +92,16 @@
                                 <strong>Username:</strong><br>
                                 {{ profile.user.username }}
                             </div>
+                            {% if profile.address %}
                             <div class="mb-3">
+                                <strong>Address:</strong><br>
+                                {{ profile.address|linebreaks }}
+                            </div>
+                            {% endif %}
+                            <!--<div class="mb-3">
                                 <strong>Email:</strong><br>
                                 {{ profile.user.email }}
-                            </div>
+                            </div>-->
                             {% if profile.date_of_birth %}
                             <div class="mb-3">
                                 <strong>Date of Birth:</strong><br>
@@ -119,12 +125,16 @@
                                 {{ profile.phone }}
                             </div>
                             {% endif %}
-                            {% if profile.address %}
+                            <div class="mb-3">
+                                <strong>Email:</strong><br>
+                                {{ profile.user.email }}
+                            </div>
+                            <!--{% if profile.address %}
                             <div class="mb-3">
                                 <strong>Address:</strong><br>
                                 {{ profile.address|linebreaks }}
                             </div>
-                            {% endif %}
+                            {% endif %}-->
                             
                             <!-- Social Media -->
                             {% if profile.website or profile.twitter or profile.instagram or profile.facebook %}

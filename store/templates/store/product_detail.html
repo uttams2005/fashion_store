@@ -9,9 +9,15 @@
     <div class="col-md-6">
         <div class="product-image-container">
             {% if product.image %}
-            <img src="{{ product.image.url }}" class="img-fluid rounded product-detail-image" alt="{{ product.name }}">
+            <img src="{{ product.image.url }}" 
+                 alt="{{ product.name }}"
+                 class="img-fluid rounded"
+                 style="width:100%; max-width:400px; height:400px; object-fit:contain; background-color:#f8f9fa; display:block; margin:0 auto;">
             {% else %}
-                                    <img src="{% static 'images/default-product.svg' %}" class="img-fluid rounded product-detail-image" alt="{{ product.name }}">
+            <img src="{% static 'images/default-product.svg' %}" 
+                 alt="{{ product.name }}"
+                 class="img-fluid rounded"
+                 style="width:100%; max-width:400px; height:400px; object-fit:contain; background-color:#f8f9fa; display:block; margin:0 auto;">
             {% endif %}
         </div>
     </div>
@@ -37,26 +43,6 @@
             <span class="badge bg-danger ms-2">Out of Stock</span>
             {% endif %}
         </div>
-
-        <!-- Rating Display -->
-        {% if product.average_rating > 0 %}
-        <div class="mb-3">
-            <div class="d-flex align-items-center">
-                <div class="rating-stars me-2">
-                    {% for i in "12345" %}
-                        {% if forloop.counter <= product.average_rating %}
-                            <i class="fas fa-star text-warning"></i>
-                        {% elif forloop.counter|add:-0.5 <= product.average_rating %}
-                            <i class="fas fa-star-half-alt text-warning"></i>
-                        {% else %}
-                            <i class="far fa-star text-warning"></i>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                <span class="text-muted">{{ product.average_rating }} out of 5 ({{ product.total_reviews }} reviews)</span>
-            </div>
-        </div>
-        {% endif %}
 
         <div class="mb-4">
             <h5>Description</h5>
@@ -101,72 +87,6 @@
             </ul>
         </div>
     </div>
-</div>
-
-<!-- Reviews Section -->
-<div class="mt-5">
-    <h3>Customer Reviews</h3>
-
-    {% if user.is_authenticated %}
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0">Write a Review</h5>
-        </div>
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label for="{{ form.rating.id_for_label }}" class="form-label">Rating</label>
-                    {{ form.rating }}
-                </div>
-                <div class="mb-3">
-                    <label for="{{ form.comment.id_for_label }}" class="form-label">Comment</label>
-                    {{ form.comment }}
-                </div>
-                <button type="submit" class="btn btn-primary">Submit Review</button>
-            </form>
-        </div>
-    </div>
-    {% else %}
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle me-2"></i>
-        Please <a href="{% url 'login' %}">login</a> to write a review.
-    </div>
-    {% endif %}
-
-    {% if reviews %}
-    <div class="reviews-list">
-        {% for review in reviews %}
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <h6 class="card-title mb-1">{{ review.user.username }}</h6>
-                        <div class="rating-stars mb-2">
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= review.rating %}
-                                    <i class="fas fa-star text-warning"></i>
-                                {% else %}
-                                    <i class="far fa-star text-warning"></i>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        {% if review.comment %}
-                        <p class="card-text">{{ review.comment }}</p>
-                        {% endif %}
-                    </div>
-                    <small class="text-muted">{{ review.created_at|date:"M j, Y" }}</small>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="alert alert-secondary">
-        <i class="fas fa-comments me-2"></i>
-        No reviews yet. Be the first to review this product!
-    </div>
-    {% endif %}
 </div>
 
 <!-- Related Products -->
