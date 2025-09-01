@@ -1,0 +1,218 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}User Management{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">All Users</h6>
+        <form method="GET" class="d-flex" id="searchForm">
+            <input type="text" name="search" class="form-control form-control-sm me-2" placeholder="Search users..." value="{{ request.GET.search }}">
+            <button type="submit" class="btn btn-sm btn-primary">Search</button>
+        </form>
+    </div>
+    <div class="card-body">
+        {% if users %}
+        <form method="POST" id="bulkActionForm">
+            {% csrf_token %}
+            <div class="mb-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <select name="bulk_action" class="form-select form-select-sm w-auto" required>
+                        <option value="" selected>Bulk Actions</option>
+                        <option value="activate">Activate</option>
+                        <option value="deactivate">Deactivate</option>
+                        <option value="delete">Delete</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-secondary ms-2" onclick="return confirm('Are you sure you want to perform this bulk action?')">Apply</button>
+                </div>
+                <div>
+                    <label class="form-label me-2 mb-0">Filter:</label>
+                    <select name="status_filter" class="form-select form-select-sm d-inline-block w-auto" onchange="document.getElementById('filterForm').submit();">
+                        <option value="" {% if not request.GET.status_filter %}selected{% endif %}>All</option>
+                        <option value="active" {% if request.GET.status_filter == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if request.GET.status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                        <option value="staff" {% if request.GET.status_filter == 'staff' %}selected{% endif %}>Staff</option>
+                        <option value="superuser" {% if request.GET.status_filter == 'superuser' %}selected{% endif %}>Superuser</option>
+                    </select>
+                </div>
+            </div>
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Last Login</th>
+                        <th>Status</th>
+                        <th>Staff</th>
+                        <th>Superuser</th>
+                        <th>Joined Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td><input type="checkbox" name="user_ids" value="{{ user.id }}"></td>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.get_full_name|default:"N/A" }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.last_login|date:"M j, Y H:i" }}</td>
+                        <td>
+                            {% if user.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_staff %}
+                            <i class="fas fa-check text-success"></i>
+                            {% else %}
+                            <i class="fas fa-times text-danger"></i>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_superuser %}
+                            <i class="fas fa-check text-success"></i>
+                            {% else %}
+                            <i class="fas fa-times text-danger"></i>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.date_joined|date:"M j, Y" }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                {% if user.is_active %}
+                                <form method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                    <input type="hidden" name="action" value="deactivate">
+                                    <button type="submit" class="btn btn-sm btn-warning" 
+                                            onclick="return confirm('Are you sure you want to deactivate {{ user.username }}?')">
+                                        <i class="fas fa-user-slash"></i>
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                    <input type="hidden" name="action" value="activate">
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="fas fa-user-check"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                
+                                <form method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                    <input type="hidden" name="action" value="delete">
+                                    <button type="submit" class="btn btn-sm btn-danger" 
+                                            onclick="return confirm('Are you sure you want to delete {{ user.username }}? This action cannot be undone.')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+        
+        <!-- Pagination -->
+        {% if users.has_other_pages %}
+        <nav aria-label="User pagination">
+            <ul class="pagination justify-content-center mt-4">
+                {% if users.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ users.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+                {% endif %}
+                
+                {% for i in users.paginator.page_range %}
+                {% if users.number == i %}
+                <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if users.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ users.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <p class="text-muted text-center">No users found.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">User Statistics</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                <div class="col-md-4">
+                    <div class="border rounded p-3">
+                        <h4 class="text-primary">{{ total_users }}</h4>
+                        <p class="mb-0">Total Users</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="border rounded p-3">
+                        <h4 class="text-success">{{ active_users }}</h4>
+                        <p class="mb-0">Active Users</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="border rounded p-3">
+                        <h4 class="text-danger">{{ inactive_users }}</h4>
+                        <p class="mb-0">Inactive Users</p>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleSelectAll(source) {
+    checkboxes = document.getElementsByName('user_ids');
+    for(var i=0, n=checkboxes.length;i<n;i++) {
+        checkboxes[i].checked = source.checked;
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}Category Management{% endblock %}
+{% block page_title %}Category Management{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Add New Category</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">Category Name *</label>
+                        <input type="text" class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                               id="{{ form.name.id_for_label }}" name="{{ form.name.name }}" 
+                               value="{{ form.name.value|default:'' }}" required>
+                        {% if form.name.errors %}
+                        <div class="invalid-feedback">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                                  id="{{ form.description.id_for_label }}" name="{{ form.description.name }}" 
+                                  rows="3">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">{{ form.description.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-plus me-2"></i>Add Category
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">All Categories</h6>
+            </div>
+            <div class="card-body">
+                {% if categories %}
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Products Count</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in categories %}
+                            <tr>
+                                <td>{{ category.id }}</td>
+                                <td>{{ category.name }}</td>
+                                <td>{{ category.description|truncatewords:10|default:"No description" }}</td>
+                                <td>
+                                    <span class="badge bg-info">{{ category.products.count }}</span>
+                                </td>
+                                <td>{{ category.created_at|date:"M j, Y" }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'admin_edit_category' category.id %}" class="btn btn-sm btn-primary" title="Edit category">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% if category.products.count == 0 %}
+                                        <form method="POST" action="{% url 'admin_delete_category' category.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger" 
+                                                    onclick="return confirm('Are you sure you want to delete {{ category.name }}?')"
+                                                    title="Delete category">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <button class="btn btn-sm btn-secondary" disabled 
+                                                title="Cannot delete category with products">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No categories found</h4>
+                    <p class="text-muted">Start by adding your first category.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Category Statistics</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="border rounded p-3">
+                            <h4 class="text-primary">{{ categories.count }}</h4>
+                            <p class="mb-0">Total Categories</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3">
+                            <h4 class="text-success">{{ categories_with_products_count }}</h4>
+                            <p class="mb-0">Categories with Products</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3">
+                            <h4 class="text-warning">{{ empty_categories_count }}</h4>
+                            <p class="mb-0">Empty Categories</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

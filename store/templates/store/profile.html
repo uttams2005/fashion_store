@@ -1,0 +1,242 @@
+{% extends 'store/base.html' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <img src="{{ profile.profile_picture_url }}" 
+                         alt="Profile Picture" 
+                         class="img-fluid rounded-circle mb-3"
+                         style="width: 120px; height: 120px; object-fit: cover;">
+                    <h5 class="card-title">{{ profile.user.get_full_name }}</h5>
+                    <p class="text-muted">@{{ profile.user.username }}</p>
+                    
+                    <!-- Profile Completion -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted">Profile Completion</small>
+                            <small class="text-primary">{{ profile.profile_completion_percentage }}%</small>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-primary" role="progressbar" 
+                                 style="width: {{ profile.profile_completion_percentage }}%;" 
+                                 aria-valuenow="{{ profile.profile_completion_percentage }}" 
+                                 aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="list-group">
+                        <a href="{% url 'profile_view' %}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-user me-2"></i>Profile Overview
+                        </a>
+                        <a href="{% url 'profile_edit' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </a>
+                        <a href="{% url 'change_password' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-key me-2"></i>Change Password
+                        </a>
+                        <a href="{% url 'order_history' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-history me-2"></i>Order History
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="card shadow mt-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Account Stats</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Orders:</span>
+                        <strong>{{ total_orders }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Spent:</span>
+                        <strong>₹{{ total_spent|floatformat:2 }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Member Since:</span>
+                        <strong>{{ profile.user.date_joined|date:"M j, Y" }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Profile Header -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Profile Overview</h4>
+                    <a href="{% url 'profile_edit' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Personal Information -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                            <div class="mb-3">
+                                <strong>Full Name:</strong><br>
+                                {{ profile.user.get_full_name }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Username:</strong><br>
+                                {{ profile.user.username }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Email:</strong><br>
+                                {{ profile.user.email }}
+                            </div>
+                            {% if profile.date_of_birth %}
+                            <div class="mb-3">
+                                <strong>Date of Birth:</strong><br>
+                                {{ profile.date_of_birth|date:"F j, Y" }} (Age: {{ profile.age }})
+                            </div>
+                            {% endif %}
+                            {% if profile.gender %}
+                            <div class="mb-3">
+                                <strong>Gender:</strong><br>
+                                {{ profile.get_gender_display }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3"><i class="fas fa-address-card me-2"></i>Contact Information</h6>
+                            {% if profile.phone %}
+                            <div class="mb-3">
+                                <strong>Phone:</strong><br>
+                                {{ profile.phone }}
+                            </div>
+                            {% endif %}
+                            {% if profile.address %}
+                            <div class="mb-3">
+                                <strong>Address:</strong><br>
+                                {{ profile.address|linebreaks }}
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Social Media -->
+                            {% if profile.website or profile.twitter or profile.instagram or profile.facebook %}
+                            <h6 class="text-primary mb-3"><i class="fas fa-share-alt me-2"></i>Social Media</h6>
+                            <div class="d-flex gap-2">
+                                {% if profile.website %}
+                                <a href="{{ profile.website }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                    <i class="fas fa-globe"></i>
+                                </a>
+                                {% endif %}
+                                {% if profile.twitter %}
+                                <a href="https://twitter.com/{{ profile.twitter }}" class="btn btn-outline-info btn-sm" target="_blank">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                {% endif %}
+                                {% if profile.instagram %}
+                                <a href="https://instagram.com/{{ profile.instagram }}" class="btn btn-outline-danger btn-sm" target="_blank">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                {% endif %}
+                                {% if profile.facebook %}
+                                <a href="https://facebook.com/{{ profile.facebook }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                    <i class="fab fa-facebook"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Bio Section -->
+                    {% if profile.bio %}
+                    <div class="mt-4">
+                        <h6 class="text-primary mb-3"><i class="fas fa-quote-left me-2"></i>About Me</h6>
+                        <div class="border-start border-3 border-primary ps-3">
+                            {{ profile.bio|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            {% if recent_orders %}
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Recent Orders</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.created_at|date:"M j, Y" }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if order.status == 'delivered' %}success{% elif order.status == 'processing' %}warning{% else %}secondary{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>₹{{ order.total_price }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center">
+                        <a href="{% url 'order_history' %}" class="btn btn-outline-primary btn-sm">
+                            View All Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+.list-group-item.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.progress {
+    background-color: #e9ecef;
+    border-radius: 0.375rem;
+}
+
+.progress-bar {
+    border-radius: 0.375rem;
+}
+
+.card {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.card-header {
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Order Invoice - Fashion Store</title>
+	<style>
+		body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; background: #fff; color:#333; }
+
+		/* Header */
+		.header-table { width: 100%; margin-bottom: 20px; }
+		.site-title { font-size: 26px; font-weight: bold; color: #111; }
+		.invoice-title { font-size: 22px; font-weight: bold; letter-spacing: 2px; text-align: right; color:#444; }
+
+		/* User & Order Info */
+		.info-table { width: 100%; margin-bottom: 20px; font-size: 15px; }
+		.info-table td { vertical-align: top; line-height: 1.6; }
+
+		/* Order Items Table */
+		.order-table { 
+			width: 100%; 
+			border-collapse: separate; 
+			border-spacing: 0; 
+			margin-bottom: 20px; 
+			border: 1px solid #ddd; 
+			border-radius: 10px; 
+			overflow: hidden;
+		}
+		.order-table th { 
+			background: #22223b; 
+			color: #fff; 
+			font-size: 15px; 
+			padding: 12px; 
+			text-align: center;
+		}
+		.order-table td { 
+			padding: 12px; 
+			font-size: 15px; 
+			text-align: center; 
+			border-top: 1px solid #eee; 
+		}
+		.order-table td.product-name { text-align: left; font-weight: 600; }
+		.order-table tbody tr:nth-child(even) { background: #f9f9f9; }
+
+		/* Summary Box */
+		.order-summary { 
+			margin-top: 20px; 
+			padding: 12px 18px; 
+			background: #f1f5f9; 
+			border-left: 5px solid #22223b; 
+			border-radius: 6px; 
+			font-size: 15px;
+		}
+		.order-summary strong { color:#111; }
+
+		hr { margin: 30px 0; border: none; border-top: 2px solid #eee; }
+	</style>
+</head>
+<body>
+	{% for order in orders %}
+	<table class="header-table">
+		<tr>
+			<td style="width:60%;">
+				<span class="site-title">Fashion Store</span>
+			</td>
+			<td style="width:40%; text-align:right;">
+				<span class="invoice-title">INVOICE</span>
+			</td>
+		</tr>
+	</table>
+
+	<!-- User & Order Info -->
+	<table class="info-table">
+		<tr>
+			<td style="width:60%;">
+				<strong>User:</strong> {{ user.get_full_name|default:user.username }}<br>
+				<strong>Email:</strong> {{ user.email }}<br>
+				<strong>Address:</strong> {{ profile.address|default:"-" }}
+			</td>
+			<td style="width:40%; text-align:right;">
+				<strong>Order #{{ order.id }}</strong><br>
+				<strong>Date:</strong> {{ order.created_at|date:"F j, Y, g:i a" }}
+			</td>
+		</tr>
+	</table>
+
+	<!-- Items Table -->
+	<table class="order-table">
+		<thead>
+			<tr>
+				<th>Product</th>
+				<th>Quantity</th>
+				<th>Price</th>
+				<th>Total</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for item in order.orderitem_set.all %}
+			<tr>
+				<td class="product-name">{{ item.product.name }}</td>
+				<td>{{ item.quantity }}</td>
+				<td>{{ item.price }}</td>
+				<td>{{ item.price|multiply:item.quantity }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	<!-- Summary -->
+	<div class="order-summary">
+		<strong>Status:</strong> {{ order.get_status_display }}<br>
+		<strong>Order Total:</strong> {{ order.total_price }}
+	</div>
+
+	<hr>
+	{% endfor %}
+</body>
+</html>

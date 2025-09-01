@@ -1,0 +1,72 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Payment Methods - Clothing Store{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Payment Methods</h2>
+                <a href="{% url 'add_payment_method' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Payment Method
+                </a>
+            </div>
+            
+            {% if payment_methods %}
+                <div class="row">
+                    {% for payment_method in payment_methods %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 {% if payment_method.is_default %}border-primary{% endif %}">
+                                <div class="card-body">
+                                    {% if payment_method.is_default %}
+                                        <span class="badge bg-primary mb-2">Default</span>
+                                    {% endif %}
+                                    <h6 class="card-title">{{ payment_method.get_payment_type_display }}</h6>
+                                    
+                                    {% if payment_method.payment_type in 'credit_card,debit_card' %}
+                                        <p class="card-text">
+                                            Card ending in {{ payment_method.card_number|slice:"-4:" }}<br>
+                                            {{ payment_method.card_holder_name }}<br>
+                                            Expires: {{ payment_method.expiry_month }}/{{ payment_method.expiry_year }}
+                                        </p>
+                                    {% elif payment_method.payment_type == 'upi' %}
+                                        <p class="card-text">
+                                            UPI ID: {{ payment_method.upi_id }}
+                                        </p>
+                                    {% elif payment_method.payment_type == 'net_banking' %}
+                                        <p class="card-text">
+                                            {{ payment_method.bank_name }}<br>
+                                            Account ending in {{ payment_method.account_number|slice:"-4:" }}
+                                        </p>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'edit_payment_method' payment_method.id %}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <form method="post" action="{% url 'delete_payment_method' payment_method.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this payment method?')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No payment methods saved yet</h4>
+                    <p class="text-muted">Add your payment methods to make checkout faster.</p>
+                    <a href="{% url 'add_payment_method' %}" class="btn btn-primary">Add Payment Method</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
