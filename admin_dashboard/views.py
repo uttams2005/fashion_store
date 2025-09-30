@@ -148,15 +148,18 @@ def product_management(request):
     products = paginator.get_page(page_number)
     
     # Calculate statistics from the full queryset
+    total_products = products_list.count()
     active_products_count = products_list.filter(is_active=True).count()
     distinct_categories_count = products_list.values_list('category', flat=True).distinct().count()
     in_stock_products_count = products_list.filter(stock__gt=0).count()
     
     context = {
-        'products': products,
-        'active_products_count': active_products_count,
-        'distinct_categories_count': distinct_categories_count,
-        'in_stock_products_count': in_stock_products_count,
+    'products': products,
+    'total_products': total_products,
+
+    'active_products_count': active_products_count,
+    'distinct_categories_count': distinct_categories_count,
+    'in_stock_products_count': in_stock_products_count,
     }
     return render(request, 'admin_dashboard/product_management.html', context)
 

@@ -15,7 +15,7 @@
             {% for order in orders %}
             <div class="card shadow-sm mb-4 rounded-4 border-0">
                 <div class="d-flex justify-content-end mt-2 me-3">
-                    <a href="{% url 'download_single_order_invoice_pdf' order.id %}" class="btn btn-sm btn-outline-dark rounded-pill">
+                    <a href="{% url 'download_single_order_invoice_pdf' order.id %}" class="btn btn-sm  rounded-pill">
                         <i class="fas fa-file-invoice me-1"></i>Download Invoice
                     </a>
                 </div>

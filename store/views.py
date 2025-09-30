@@ -12,16 +12,26 @@ from django.template.loader import get_template
 from django.http import HttpResponse
 from django.conf import settings
 import os
-from xhtml2pdf import pisa
 
 
 # Single order invoice PDF download view
 @login_required
 def download_single_order_invoice_pdf(request, order_id):
+    """Generate a PDF invoice for a single order.
+
+    Importing xhtml2pdf here so the rest of the site runs without the
+    optional PDF stack installed.
+    """
+    try:
+        from xhtml2pdf import pisa  # type: ignore
+    except Exception:  # pragma: no cover
+        messages.error(request, 'PDF generation is unavailable on this server.')
+        return redirect('order_history')
+
     from .models import Order, UserProfile
     order = Order.objects.get(id=order_id, user=request.user)
     user_profile = UserProfile.objects.get(user=request.user)
-    logo_url = os.path.join(settings.STATIC_ROOT, 'images', 'default-product.jpg')  # Change to your logo path
+    logo_url = os.path.join(settings.STATIC_ROOT, 'images', 'default-product.jpg')
     template = get_template('store/order_invoice_pdf.html')
     html = template.render({
         'orders': [order],

@@ -4,21 +4,53 @@
 {% block title %}Home - Fashion Store{% endblock %}
 
 {% block content %}
+<!-- Hero Section -->
+<!--<section class="hero-section text-white py-5 mb-4 rounded-3" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-md-7">
+                <h1 class="display-4 fw-bold">Discover Your Style</h1>
+                <p class="lead mb-4">Explore the latest trends in fashion and find your perfect outfit today.</p>
+                <a href="#featured-products" class="btn btn-light btn-lg shadow-sm">Shop Now</a>
+            </div>
+            <div class="col-md-5 d-none d-md-block">
+                <img src="{% static 'images/icon.svg' %}" alt="Fashion Shopping" class="img-fluid rounded shadow-lg">
+            </div>
+        </div>
+    </div>
+</section>-->
+
 <div class="row">
-    
+    <!-- Categories Sidebar -->
     <div class="col-md-3">
-        <div class="card">
+        <div class="card category-sidebar">
             <div class="card-header">
                 <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Categories</h5>
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
                     <a href="{% url 'home' %}" class="list-group-item list-group-item-action {% if not selected_category %}active{% endif %}">
-                        All Categories
+                        <i class="fas fa-tags me-2"></i>All Categories
                     </a>
                     {% for category in categories %}
                     <a href="?category={{ category.id }}" class="list-group-item list-group-item-action {% if selected_category == category.id|stringformat:'s' %}active{% endif %}">
-                        {{ category.name }}
+                        {% if category.name == 'Men' %}
+                        <i class="fas fa-male me-2"></i>
+                        {% elif category.name == 'Women' %}
+                        <i class="fas fa-female me-2"></i>
+                        {% elif category.name == 'Kids' %}
+                        <i class="fas fa-child me-2"></i>
+                        {% elif category.name == 'Accessories' %}
+                        <i class="fas fa-gem me-2"></i>
+                        {% elif category.name == 'Watch' %}
+                        <i class="fas fa-clock me-2"></i>
+                        {% elif category.name == 'Perfume' %}
+                        <i class="fas fa-spray-can me-2"></i>
+                        {% elif category.name == 'Sun Glasses' %}
+                        <i class="fas fa-glasses me-2"></i>
+                        {% else %}
+                        <i class="fas fa-tag me-2"></i>
+                        {% endif %}{{ category.name }}
                     </a>
                     {% endfor %}
                 </div>
@@ -26,8 +58,8 @@
         </div>
     </div>
 
-    
-    <div class="col-md-9">
+    <!-- Main Content Area -->
+    <div class="col-md-9 main-content-area">
        
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>
@@ -140,24 +172,24 @@
                 {% for num in page_obj.paginator.page_range %}
                     {% if page_obj.number == num %}
                     <li class="page-item active">
-                        <span class="page-link">{{ num }}</span>
+                        <span class="page-link bg-primary text-white">{{ num }}</span>
                     </li>
                     {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                     <li class="page-item">
-                        <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ num }}">{{ num }}</a>
+                        <a class="page-link text-primary bg-white" href="?{% if query %}q={{ query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ num }}">{{ num }}</a>
                     </li>
                     {% endif %}
                 {% endfor %}
 
                 {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="Next">
+                    <a class="page-link text-primary bg-white" href="?{% if query %}q={{ query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
                 {% else %}
                 <li class="page-item disabled">
-                    <span class="page-link" aria-hidden="true">&raquo;</span>
+                    <span class="page-link text-primary bg-white" aria-hidden="true">&raquo;</span>
                 </li>
                 {% endif %}
             </ul>
@@ -166,4 +198,3 @@
     </div>
 </div>
 {% endblock %}
-
